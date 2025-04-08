@@ -50,7 +50,9 @@ Let's focus on the non-numeric values as a starting point:
 
 ```{r}
 snowsurvey_csv %>%
-
+  count(Snow_cover) %>%
+  # Filter for characters that are non-numeric
+  filter(is.na(as.numeric(Snow_cover)))
 ```
 
 ### Data cleaning
@@ -68,7 +70,14 @@ snowsurvey_csv %>%
 Interestingly, when there is a "dot" for snow cover, it is also the case for all the other covers. Let's replace those with NA since there is no supplemental information in the provided metadata about the use of dots
 
 ```{r}
-snowsurvey_fixed <- 
+# Carmen's way (?)
+snowsurvey_fixed <- snowsurvey_csv %>%
+  mutate(Snow_cover = case_when(Snow_cover == "." ~ NA,
+                                TRUE ~ Snow_cover))
+
+# Julien's way
+snowsurvey_fixed <- snowsurvey_csv %>%
+  mutate(Snow_cover = ifelse(Snow_cover == ".", NA, Snow_cover))
 ```
 
 #### `-` values
@@ -76,14 +85,16 @@ snowsurvey_fixed <-
 Is he problem is similar with "-"?
 
 ```{r}
-snowsurvey_csv 
+snowsurvey_csv %>%
+  filter(Snow_cover == "-")
 ```
 
 
 let's set it to NA:
 
 ```{r}
-snowsurvey_fixed <- 
+snowsurvey_fixed <- snowsurvey_fixed %>%
+  mutate(Snow_cover = ifelse(Snow_cover == "-", NA, Snow_cover))
 ```
 
 #### `n/a` values
@@ -92,15 +103,15 @@ snowsurvey_fixed <-
 
 ```{r}
 snowsurvey_csv %>%
-  
+  filter(Snow_cover == "n/a")
 ```
 
 
 Same pattern, let's substitute with NA:
 
 ```{r}
-snowsurvey_fixed <- 
- 
+snowsurvey_fixed <- snowsurvey_fixed %>%
+  mutate(Snow_cover = ifelse(Snow_cover == "n/a", NA, Snow_cover))
 ```
 
 #### `unk` values
@@ -109,12 +120,14 @@ What about "unk"? It is probably an abbreviation for unknown:
 
 ```{r}
 snowsurvey_csv %>%
+  filter(Snow_cover == "unk")
   
 ```
 
 
 ```{r}
-snowsurvey_fixed <- 
+snowsurvey_fixed <- snowsurvey_fixed %>%
+  mutate(Snow_cover = ifelse(Snow_cover == "unk", NA, Snow_cover))
 ```
 
 #### `<1` values
