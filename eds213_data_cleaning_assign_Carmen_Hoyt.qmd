@@ -1,0 +1,153 @@
+---
+title: "Assignment 2 - Data Cleaning"
+author: "Carmen Hoyt"
+date: last-modified
+format:
+  html:
+      toc: true
+      code-fold: true
+editor: visual
+execute:
+  warning: false
+  messages: false
+editor_options: 
+  chunk_output_type: console
+---
+
+# Data Cleaning 
+
+This document hosts the code for cleaning the `Water_cover`, `Land_cover`, and `Total_cover` columns for the ASDN Snow_survey data. 
+
+## Load Packages
+
+```{r}
+#| code-summary: Load Packages
+library(tidyverse)
+```
+
+## Load Data
+
+```{r}
+#| code-summary: Load Data
+# Save path to processed data
+datadir_processed <- file.path("data", "processed/")
+
+# Save path to csv with cleaned Snow_cover
+snow_cover_cleaned <- "snow_cover.csv"
+
+# Import the cleaned snow cover file
+snowsurvey_csv <- read_csv(file.path(datadir_processed, snow_cover_cleaned), show_col_types = FALSE)
+
+# View df and data types
+glimpse(snowsurvey_csv)
+```
+
+## Clean Data
+
+### `Water_cover`
+
+We will start by cleaning the `Water_cover` column. Let's look for non-numeric values:
+
+```{r}
+#| code-summary: Clean Data
+# Filter for non-numeric values in Water_cover
+snowsurvey_csv %>%
+  count(Water_cover) %>%
+  filter(is.na(as.numeric(Water_cover)))
+```
+
+It looks like there are a few non-numeric characters: ".", "-", "n/a", and "unk". Let's change these to NA values.
+
+```{r}
+#| code-summary: Replace Values
+# Replace non-numeric values with NA
+snowsurvey_fixed <- snowsurvey_csv %>%
+  mutate(Water_cover = ifelse(Water_cover %in% c(".", "-", "n/a", "unk"), NA, Water_cover))
+
+# Confirm only NAs left
+snowsurvey_fixed %>%
+  count(Water_cover) %>%
+  filter(is.na(as.numeric(Water_cover)))
+```
+
+Now we can transform the `Water_cover` column to numeric values. Once we do this, we need to check that all values fall between 0 and 100 (since they are percentages). 
+
+```{r}
+#| code-summary: Transform Column
+# Transform to numeric
+snowsurvey_fixed <- snowsurvey_fixed %>%
+  mutate(Water_cover = as.numeric(Water_cover))
+
+snowsurvey_fixed %>%
+  filter(Water_cover > 100 | Water_cover < 0) 
+```
+
+There is one value of 353. Since we cannot know what this value is supposed to be, we will remove this row of data.
+
+```{r}
+#| code-summary: Remove Rows
+# Remove values less than 0 and greater than 100
+snowsurvey_fixed <- snowsurvey_fixed %>%
+  filter(!Water_cover > 100 | Water_cover < 0)
+```
+
+### `Land_cover`
+
+Now we will do the same process for the `Land_cover` column.
+
+```{r}
+#| code-summary: Clean Data
+# Filter for non-numeric values in Land_cover
+snowsurvey_fixed %>%
+  count(Land_cover) %>%
+  filter(is.na(as.numeric(Land_cover)))
+
+# Replace non-numeric values with NA
+snowsurvey_fixed <- snowsurvey_fixed %>%
+  mutate(Land_cover = ifelse(Land_cover == ".", NA, Land_cover))
+
+# Confirm only NAs left
+snowsurvey_fixed %>%
+  count(Land_cover) %>%
+  filter(is.na(as.numeric(Land_cover)))
+
+# Transform to numeric
+snowsurvey_fixed <- snowsurvey_fixed %>%
+  mutate(Land_cover = as.numeric(Land_cover))
+
+# Remove values less than 0 or greater than 100
+snowsurvey_fixed <- snowsurvey_fixed %>%
+  filter(!Land_cover > 100 | Land_cover < 0) 
+```
+
+### `Total_cover`
+
+Now that we have cleaned values for `Water_cover` and `Land_cover`, we need to make sure these values add up to 100 in the `Total_cover` column (100% cover). Since we do not know the intended values, we will remove rows that do not add up to 100. 
+
+```{r}
+#| code-summary: Clean Data
+# Check for non-numeric values in Total_cover
+snowsurvey_fixed %>%
+  count(Total_cover) %>%
+  filter(is.na(as.numeric(Total_cover)))
+
+# Transform to numeric (no non-numeric values detected)
+snowsurvey_fixed <- snowsurvey_fixed %>%
+  mutate(Total_cover = as.numeric(Total_cover))
+
+# Clean Total_cover column
+snowsurvey_fixed <- snowsurvey_fixed %>%
+  # Recalculate Total_cover
+  mutate(Total_cover = Snow_cover + Water_cover + Land_cover) %>%
+  # Remove rows that don't equal 100
+  filter(!Total_cover != 100)
+```
+
+## Save CSV
+
+```{r}
+#| code-summary: Save CSV
+# Save cleaned df in processed data file
+write_csv(snowsurvey_fixed, file.path(datadir_processed, "all_cover_fixed_CARMENHOYT.csv"))
+```
+
