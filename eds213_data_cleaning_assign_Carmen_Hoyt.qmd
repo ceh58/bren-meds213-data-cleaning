@@ -88,7 +88,7 @@ There is one value of 353. Since we cannot know what this value is supposed to b
 #| code-summary: Remove Rows
 # Remove values less than 0 and greater than 100
 snowsurvey_fixed <- snowsurvey_fixed %>%
-  filter(!Water_cover > 100 | Water_cover < 0)
+  filter(Water_cover <= 100 | Water_cover >= 0)
 ```
 
 ### `Land_cover`
@@ -117,7 +117,7 @@ snowsurvey_fixed <- snowsurvey_fixed %>%
 
 # Remove values less than 0 or greater than 100
 snowsurvey_fixed <- snowsurvey_fixed %>%
-  filter(!Land_cover > 100 | Land_cover < 0) 
+  filter(Land_cover <= 100 | Land_cover >= 0) 
 ```
 
 ### `Total_cover`
@@ -140,7 +140,7 @@ snowsurvey_fixed <- snowsurvey_fixed %>%
   # Recalculate Total_cover
   mutate(Total_cover = Snow_cover + Water_cover + Land_cover) %>%
   # Remove rows that don't equal 100
-  filter(!Total_cover != 100)
+  filter(Total_cover == 100)
 ```
 
 ## Save CSV
