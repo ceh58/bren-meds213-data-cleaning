@@ -122,7 +122,7 @@ snowsurvey_fixed <- snowsurvey_fixed %>%
 
 ### `Total_cover`
 
-Now that we have cleaned values for `Water_cover` and `Land_cover`, we need to make sure these values add up to 100 in the `Total_cover` column (100% cover). Since we do not know the intended values, we will remove rows that do not add up to 100. 
+Now that we have cleaned values for `Water_cover` and `Land_cover`, we need to make sure these values add up to 100 in the `Total_cover` column (100% cover). We will back-fill 0 for `Snow_cover` where `Water_cover` and `Land_cover` add up to 100.
 
 ```{r}
 #| code-summary: Clean Data
@@ -138,9 +138,18 @@ snowsurvey_fixed <- snowsurvey_fixed %>%
 # Clean Total_cover column
 snowsurvey_fixed <- snowsurvey_fixed %>%
   # Recalculate Total_cover
-  mutate(Total_cover = Snow_cover + Water_cover + Land_cover) %>%
-  # Remove rows that don't equal 100
-  filter(Total_cover == 100)
+  mutate(Total_cover = rowSums(across(c(Snow_cover, Water_cover, Land_cover)), na.rm = TRUE))
+
+# Replace NA values in Snow_cover with 0 where Water_cover and Land_cover add up to 100
+snowsurvey_fixed <- snowsurvey_fixed %>%
+  mutate(Snow_cover = ifelse(is.na(Snow_cover), Total_cover - (Water_cover + Land_cover), Snow_cover))
+
+# Check for NA values in Water_cover and Land_cover
+snowsurvey_fixed %>%
+  filter(is.na(Water_cover))
+
+snowsurvey_fixed %>%
+  filter(is.na(Land_cover))
 ```
 
 ## Save CSV

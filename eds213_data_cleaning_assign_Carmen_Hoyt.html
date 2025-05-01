@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Carmen Hoyt">
-<meta name="dcterms.date" content="2025-04-16">
+<meta name="dcterms.date" content="2025-05-01">
 
 <title>Assignment 2 - Data Cleaning</title>
 <style>
@@ -117,7 +117,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">April 16, 2025</p>
+      <p class="date">May 1, 2025</p>
     </div>
   </div>
   
@@ -297,7 +297,7 @@ $ Notes       &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
 </section>
 <section id="total_cover" class="level3">
 <h3 class="anchored" data-anchor-id="total_cover"><code>Total_cover</code></h3>
-<p>Now that we have cleaned values for <code>Water_cover</code> and <code>Land_cover</code>, we need to make sure these values add up to 100 in the <code>Total_cover</code> column (100% cover). Since we do not know the intended values, we will remove rows that do not add up to 100.</p>
+<p>Now that we have cleaned values for <code>Water_cover</code> and <code>Land_cover</code>, we need to make sure these values add up to 100 in the <code>Total_cover</code> column (100% cover). We will back-fill 0 for <code>Snow_cover</code> where <code>Water_cover</code> and <code>Land_cover</code> add up to 100.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Clean Data</summary>
@@ -319,10 +319,33 @@ $ Notes       &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Clean Total_cover column</span></span>
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>snowsurvey_fixed <span class="ot">&lt;-</span> snowsurvey_fixed <span class="sc">%&gt;%</span></span>
 <span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Recalculate Total_cover</span></span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Total_cover =</span> Snow_cover <span class="sc">+</span> Water_cover <span class="sc">+</span> Land_cover) <span class="sc">%&gt;%</span></span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Remove rows that don't equal 100</span></span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Total_cover <span class="sc">==</span> <span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Total_cover =</span> <span class="fu">rowSums</span>(<span class="fu">across</span>(<span class="fu">c</span>(Snow_cover, Water_cover, Land_cover)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace NA values in Snow_cover with 0 where Water_cover and Land_cover add up to 100</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>snowsurvey_fixed <span class="ot">&lt;-</span> snowsurvey_fixed <span class="sc">%&gt;%</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Snow_cover =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(Snow_cover), Total_cover <span class="sc">-</span> (Water_cover <span class="sc">+</span> Land_cover), Snow_cover))</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Check for NA values in Water_cover and Land_cover</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>snowsurvey_fixed <span class="sc">%&gt;%</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(Water_cover))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 11
+# ℹ 11 variables: Site &lt;chr&gt;, Year &lt;dbl&gt;, Date &lt;chr&gt;, Plot &lt;chr&gt;,
+#   Location &lt;chr&gt;, Snow_cover &lt;dbl&gt;, Water_cover &lt;dbl&gt;, Land_cover &lt;dbl&gt;,
+#   Total_cover &lt;dbl&gt;, Observer &lt;chr&gt;, Notes &lt;chr&gt;</code></pre>
+</div>
+<details class="code-fold">
+<summary>Clean Data</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>snowsurvey_fixed <span class="sc">%&gt;%</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(Land_cover))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 11
+# ℹ 11 variables: Site &lt;chr&gt;, Year &lt;dbl&gt;, Date &lt;chr&gt;, Plot &lt;chr&gt;,
+#   Location &lt;chr&gt;, Snow_cover &lt;dbl&gt;, Water_cover &lt;dbl&gt;, Land_cover &lt;dbl&gt;,
+#   Total_cover &lt;dbl&gt;, Observer &lt;chr&gt;, Notes &lt;chr&gt;</code></pre>
+</div>
 </div>
 </section>
 </section>
@@ -331,8 +354,8 @@ $ Notes       &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
 <div class="cell">
 <details class="code-fold">
 <summary>Save CSV</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save cleaned df in processed data file</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(snowsurvey_fixed, <span class="fu">file.path</span>(datadir_processed, <span class="st">"all_cover_fixed_CARMENHOYT.csv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save cleaned df in processed data file</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(snowsurvey_fixed, <span class="fu">file.path</span>(datadir_processed, <span class="st">"all_cover_fixed_CARMENHOYT.csv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
