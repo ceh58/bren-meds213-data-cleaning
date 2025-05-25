@@ -20,24 +20,37 @@ See `01_ASDN_Readme.txt` provided in the [course data repository](https://github
 
 **DATA & FILE OVERVIEW**
 
-1. File List: 
+1. File List:
 
-- `all_cover_fixed_CARMENHOYT.csv`: a .csv file containing the cleaned version of the original `ASDN_Snow_Survey.csv`
+The `data/` folder is divided into `processed/` and `raw/` folders. 
+
+`processed/`:
+
+- `all_cover_fixed_CARMENHOYT.csv`: a .csv file containing the cleaned version of all of the snow cover data (completed individually)
+- `snow_cover.csv`: a .csv file containing just the cleaned `snow_cover` column from the original snow cover data (completed in class)
+- `species_presence.csv`: a .csv file containing the cleaned version of the species data (completed in class)
+
+`raw/`:
+
+- `01_ASDN_Readme.txt`: a readme for the original ADSN data
+- `ASDN_Daily_species.csv`: a .csv file containing original ADSN species data
+- `ASDN_Snow_survey.csv`: a .csv file containing original ADSN snow cover data 
 
 2. Relationship between files, if important:
 
-Single file.
+- `ASDN_Daily_species.csv` is the original version of `all_cover_fixed_CARMENHOYT.csv` and `snow_cover.csv`
+- `ASDN_Snow_survey.csv` is the original version of `species_presence.csv`
 
 3. Additional related data collected that was not included in the current
 data package:
 
-N/A
+There was no additional data collected. 
 
 4. Are there multiple versions of the dataset? 
 
-The original `ASDN_Snow_Survey.csv` can be found in the [bred-meds213-data-cleaning repository](https://github.com/UCSB-Library-Research-Data-Services/bren-meds213-data-cleaning/tree/main/data/raw). This is a subset of the dataset hosted by the [NSF Arctic Data Center](https://arcticdata.io).
+The raw data files can be found in the [bred-meds213-data-cleaning repository](https://github.com/UCSB-Library-Research-Data-Services/bren-meds213-data-cleaning/tree/main/data/raw). This is a subset of the dataset hosted by the [NSF Arctic Data Center](https://arcticdata.io).
 
-**DATA-SPECIFIC INFORMATION FOR:**
+**DATA-SPECIFIC INFORMATION:**
 
 For the file `data/processed/all_cover_fixed_CARMENHOYT.csv`: 
 
@@ -91,11 +104,11 @@ N/A
 
 2. Links to publications that cite or use the data:
 
-
+N/A
 
 3. Links to other publicly accessible locations of the data:
 
-
+[NSF Arctic Data Center](https://arcticdata.io)
 
 4. Links/relationships to ancillary data sets: <any supplementary data sources 
 that support analysis or classification of the datasets, eg., plant taxonomy table.)>
