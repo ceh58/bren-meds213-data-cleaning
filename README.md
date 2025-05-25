@@ -76,6 +76,8 @@ Notes         | Any relevant comments on the survey
 
 4. Missing data codes: NA
 
+All non-numeric values in the `snow_cover` column were substituted with NA (or 0, where applicable). All negative values and values over 100 (greater than 100%) were filtered out. This process was repeated for the `land_cover` and `water_cover` columns. Then, values were filled in where `total_cover` was 100 by subtracting the values from the other columns to deduce the missing number (since all `cover` columns had to total 100).
+
 5. Specialized formats or other abbreviations used: 
 
 Code	Site name	Location	Latitude	Longitude	Total Study Plot Area (ha)
